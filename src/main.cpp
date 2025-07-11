@@ -1,6 +1,7 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 
+#include "camera.hpp"
 #include "events.hpp"
 #include "config.hpp"
 
@@ -23,6 +24,14 @@ int main()
     }
     shader.setUniform("iResolution", config::windowSizeF);
 
+    // Camera
+    constexpr sf::Vector3f cameraPosition {0, 0, 0};
+    constexpr sf::Vector3f cameraTarget {0, 0, 0};
+    constexpr float fov = 60;
+    const float aspectRatio = config::windowSizeF.x / config::windowSizeF.y;
+    raymarch::Camera camera { config::windowSizeF, cameraPosition, cameraTarget, fov, aspectRatio, 1.0f };
+
+    // Loop
     while (window.isOpen())
     {
         // Processing window events
