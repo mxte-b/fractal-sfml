@@ -41,3 +41,14 @@ void processEvents(sf::RenderWindow &window, sf::RectangleShape &fullScreenQuad,
         }
     }
 }
+
+void updateShader(sf::Shader &shader, const raymarch::Camera &camera)
+{
+    // auto campos = camera.getPosition();
+    // auto r = camera.getRotationMatrix();
+
+    // auto look = raymarch::Camera::lookAtMatrix({0, 0, 0}, {0, 0, 1}, {0, 1, 0});
+    // auto look2 = raymarch::Quaternion::fromRotationMatrix(look).toMatrix();
+    shader.setUniform("camPosition", camera.getPosition());
+    shader.setUniform("camRotationMatrix", camera.getRotationMatrix());
+}

@@ -22,8 +22,9 @@ namespace raymarch
         static float dot(const Quaternion& q1, const Quaternion& q2);
         static Quaternion identity();
         static Quaternion slerp(const Quaternion& q1, const Quaternion& q2, float t);
-        static Quaternion fromAxisAngle(const sf::Vector3f &axis, float angle);
-        static Quaternion fromEuler(const sf::Vector3f &euler);
+        static Quaternion fromAxisAngle(const sf::Vector3f& axis, float angle);
+        static Quaternion fromEuler(const sf::Vector3f& euler);
+        static Quaternion fromRotationMatrix(const sf::Glsl::Mat3& rotation);
     private:
         float x, y, z, w;
     };

@@ -68,12 +68,9 @@ sf::Glsl::Mat3 raymarch::Quaternion::toMatrix() const
 {
     // Converting the quaternion to a 3D rotation matrix
     float array[9] = {
-        1.0f - 2.0f * (this->y * this->y + this->z * this->z), 2.0f * (this->x * this->y + this->w * this->z),
-        2.0f * (this->x * this->z - this->y * this->w),
-        2.0f * (this->x * this->y - this->w * this->z), 1.0f - 2.0f * (this->x * this->x + this->z * this->z),
-        2.0f * (this->y * this->z + this->x * this->w),
-        2.0f * (this->x * this->z + this->y * this->w), 2.0f * (this->y * this->z - this->x * this->w),
-        1.0f - 2.0f * (this->x * this->x + this->y * this->y)
+        1.0f - 2.0f * (y * y + z * z), 2.0f * (x * y + w * z), 2.0f * (x * z - y * w),
+        2.0f * (x * y - w * z), 1.0f - 2.0f * (x * x + z * z), 2.0f * (y * z + x * w),
+        2.0f * (x * z + y * w), 2.0f * (y * z - x * w), 1.0f - 2.0f * (x * x + y * y)
     };
 
     return sf::Glsl::Mat3(array);
@@ -128,4 +125,100 @@ raymarch::Quaternion raymarch::Quaternion::slerp(const Quaternion &q1, const Qua
     const float b = sinf(t * theta) / sinTheta;
 
     return (q1n * a + q2n * b).normalize();
+}
+
+raymarch::Quaternion raymarch::Quaternion::fromAxisAngle(const sf::Vector3f &axis, const float angleRad)
+{
+    const sf::Vector3f axisNorm = axis.normalized();
+
+    const float sinAngleHalf = sinf(angleRad * 0.5f);
+    const float cosAngleHalf = cosf(angleRad * 0.5f);
+
+    return { axisNorm.x * sinAngleHalf, axisNorm.y * sinAngleHalf, axisNorm.z * sinAngleHalf, cosAngleHalf };
+}
+
+/**
+ * @brief Creates a quaternion representing a rotation from Euler angles (in radians).
+ *
+ * The Euler angles are applied in YXZ order:
+ *   1. Yaw (rotation around Y axis)
+ *   2. Pitch (rotation around X axis)
+ *   3. Roll (rotation around Z axis)
+ *
+ * @param euler A sf::Vector3f containing Euler angles (in radians) as (pitch, yaw, roll),
+ *              where:
+ *              - euler.x is pitch angle (rotation about X axis)
+ *              - euler.y is yaw angle (rotation about Y axis)
+ *              - euler.z is roll angle (rotation about Z axis)
+ *
+ * @return raymarch::Quaternion The resulting quaternion representing the combined rotation.
+ */
+raymarch::Quaternion raymarch::Quaternion::fromEuler(const sf::Vector3f &euler)
+{
+    const sf::Vector3f halfAngles = euler * 0.5f;
+
+    const float yawSin = sinf(halfAngles.y);
+    const float yawCos = cosf(halfAngles.y);
+    const float pitchSin = sinf(halfAngles.x);
+    const float pitchCos = cosf(halfAngles.x);
+    const float rollSin = sinf(halfAngles.z);
+    const float rollCos = cosf(halfAngles.z);
+
+    return {
+        yawSin * pitchCos * rollCos - yawCos * pitchSin * rollSin,
+        yawCos * pitchSin * rollCos + yawSin * pitchCos * rollSin,
+        yawCos * pitchCos * rollSin - yawSin * pitchSin * rollCos,
+        yawCos * pitchCos * rollCos + yawSin * pitchSin * rollSin,
+    };
+}
+
+raymarch::Quaternion raymarch::Quaternion::fromRotationMatrix(const sf::Glsl::Mat3 &rotation)
+{
+    const float m00 = rotation.array[0];
+    const float m01 = rotation.array[3];
+    const float m02 = rotation.array[6];
+    const float m10 = rotation.array[1];
+    const float m11 = rotation.array[4];
+    const float m12 = rotation.array[7];
+    const float m20 = rotation.array[2];
+    const float m21 = rotation.array[5];
+    const float m22 = rotation.array[8];
+
+    const float trace = m00 + m11 + m22;
+    float x, y, z, w;
+
+    if (trace > 0)
+    {
+        const float s = sqrtf(trace + 1.0f) * 2;
+        w = 0.25f * s;
+        x = (m21 - m12) / s;
+        y = (m02 - m20) / s;
+        z = (m10 - m01) / s;
+    }
+    else if ((m00 > m11) && (m00 > m22))
+    {
+        const float s = sqrtf(1.0f + m00 - m11 - m22) * 2;
+        w = (m21 - m12) / s;
+        x = 0.25f * s;
+        y = (m01 + m10) / s;
+        z = (m02 + m20) / s;
+    }
+    else if (m11 > m22)
+    {
+        const float s = sqrtf(1.0f + m11 - m00 - m22) * 2;
+        w = (m02 - m20) / s;
+        x = (m01 + m10) / s;
+        y = 0.25f * s;
+        z = (m12 + m21) / s;
+    }
+    else
+    {
+        const float s = sqrtf(1.0f + m22 - m00 - m11) * 2;
+        w = (m10 - m01) / s;
+        x = (m02 + m20) / s;
+        y = (m12 + m21) / s;
+        z = 0.25f * s;
+    }
+
+    return {x, y, z, w};
 }
