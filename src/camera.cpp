@@ -45,10 +45,27 @@ raymarch::Quaternion raymarch::Camera::lookAtQuaternion(const sf::Vector3f &eye,
     return Quaternion::fromRotationMatrix(lookAtMatrix).normalize();
 }
 
+void raymarch::Camera::updateDirectionVectors()
+{
+    // Rotate global direction vectors to obtain local directions
+    _up = _quaternion.rotate(UP);
+    _right = _quaternion.rotate(RIGHT);
+    _forward = _quaternion.rotate(FORWARD);
+}
+
+
 void raymarch::Camera::rotate(const sf::Vector3f& deltaEuler)
 {
-    const Quaternion deltaQuat = Quaternion::fromEuler(deltaEuler);
-    _quaternion = (deltaQuat * _quaternion).normalize();
+    // Creating 3 Quaternions for each axis of rotation
+    const Quaternion yawQuat = Quaternion::fromAxisAngle(UP, deltaEuler.x);
+    const Quaternion pitchQuat = Quaternion::fromAxisAngle(_right, deltaEuler.y);
+    const Quaternion rollQuat = Quaternion::fromAxisAngle(_forward, deltaEuler.z);
+
+    // Rotating the camera
+    _quaternion = (yawQuat * pitchQuat * rollQuat * _quaternion).normalize();
+
+    // Updating camera-relative direction vectors
+    updateDirectionVectors();
 }
 
 sf::Glsl::Vec3 raymarch::Camera::getPosition() const

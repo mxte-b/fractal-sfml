@@ -8,4 +8,4 @@
 
 
 void processEvents(sf::RenderWindow& window, sf::RectangleShape& fullScreenQuad, sf::Shader &shader);
-void updateShader(sf::Shader& shader, const raymarch::Camera& camera);
+void updateShader(sf::Shader& shader, const raymarch::Camera& camera, float iTime);

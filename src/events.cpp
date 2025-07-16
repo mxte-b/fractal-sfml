@@ -18,6 +18,7 @@ void processEvents(sf::RenderWindow &window, sf::RectangleShape &fullScreenQuad,
         {
             config::windowSize = window.getSize();
             config::windowSizeF = static_cast<sf::Vector2f>(config::windowSize);
+            config::windowCenter = {static_cast<int>(config::windowSize.x / 2), static_cast<int>(config::windowSize.y / 2)};
 
             // Updating FSC size
             fullScreenQuad.setSize(config::windowSizeF);
@@ -42,7 +43,7 @@ void processEvents(sf::RenderWindow &window, sf::RectangleShape &fullScreenQuad,
     }
 }
 
-void updateShader(sf::Shader &shader, const raymarch::Camera &camera)
+void updateShader(sf::Shader &shader, const raymarch::Camera &camera, const float iTime)
 {
     // auto campos = camera.getPosition();
     // auto r = camera.getRotationMatrix();
@@ -51,4 +52,5 @@ void updateShader(sf::Shader &shader, const raymarch::Camera &camera)
     // auto look2 = raymarch::Quaternion::fromRotationMatrix(look).toMatrix();
     shader.setUniform("camPosition", camera.getPosition());
     shader.setUniform("camRotationMatrix", camera.getRotationMatrix());
+    shader.setUniform("iTime", iTime);
 }

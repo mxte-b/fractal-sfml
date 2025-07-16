@@ -15,13 +15,29 @@ FetchContent_MakeAvailable(SFML)
 add_executable(${PROJECT_NAME}
         src/main.cpp
         src/events.cpp
+        src/eventhandler.cpp
         src/camera.cpp
         src/quaternion.cpp
 )
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 target_link_libraries(${PROJECT_NAME} PRIVATE SFML::Graphics)
 
-add_custom_command(TARGET ${PROJECT_NAME}
-        COMMENT "Copy shaders directory"
-        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/shaders $<TARGET_FILE_DIR:${PROJECT_NAME}>/shaders
+
+# Collect shader files
+file(GLOB_RECURSE SHADER_FILES
+        ${CMAKE_SOURCE_DIR}/shaders/*.frag
+        ${CMAKE_SOURCE_DIR}/shaders/*.vert
+        ${CMAKE_SOURCE_DIR}/shaders/*.glsl
 )
+
+# Create a custom target that copies shaders
+add_custom_target(copy_shaders ALL
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/shaders
+        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/shaders
+        DEPENDS ${SHADER_FILES}
+        COMMENT "Copying updated shader files..."
+)
+
+# Make sure it runs before build
+add_dependencies(${PROJECT_NAME} copy_shaders)

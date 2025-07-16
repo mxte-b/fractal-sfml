@@ -11,6 +11,8 @@ int main()
     // Creating window
     auto window = sf::RenderWindow(sf::VideoMode(config::windowSize), "Fractal SFML", (config::isFullscreen) ? sf::State::Fullscreen : sf::State::Windowed);
     window.setFramerateLimit(config::maxFrameRate);
+    window.setMouseCursorVisible(false);
+    sf::Mouse::setPosition(config::windowCenter, window);
 
     // Fullscreen-Quad that is the "canvas" for our renderer
     sf::RectangleShape fullScreenQuad {config::windowSizeF};
@@ -28,28 +30,46 @@ int main()
     shader.setUniform("epsilon", 0.001f);
     shader.setUniform("iterations", 100);
     shader.setUniform("power", 8.0f);
+    shader.setUniform("iTime", 0.0f);
 
     // Camera
-    constexpr sf::Vector3f cameraPosition {0.01, 0, -5};
+    constexpr sf::Vector3f cameraPosition {0.01, 0, -4};
     constexpr sf::Vector3f cameraTarget {0, 0, 2};
     constexpr float fov = 60;
     const float aspectRatio = config::windowSizeF.x / config::windowSizeF.y;
     raymarch::Camera camera { config::windowSizeF, cameraPosition, cameraTarget, fov, aspectRatio, 1.0f };
 
     unsigned int frameId = 0;
+    constexpr float sensitivity = 2.0f;
+
+    sf::Clock clock;
+    sf::Time previousTime = sf::Time::Zero;
 
     // Loop
     while (window.isOpen())
     {
+        // Updating the time
+        sf::Time elapsedTime = clock.getElapsedTime();
+        previousTime = elapsedTime;
+        float deltaTime = (elapsedTime - previousTime).asSeconds();
+        float iTime = elapsedTime.asSeconds();
+
+        // Getting mouse delta
+        sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
+        sf::Vector2f delta = static_cast<sf::Vector2f>(mousePosition - config::windowCenter).componentWiseDiv(config::windowSizeF) * sensitivity;
+
+        // Resetting mouse position
+        sf::Mouse::setPosition(config::windowCenter, window);
+
+        camera.rotate({delta.x, delta.y, 0});
+
         // Processing window events
         processEvents(window, fullScreenQuad, shader);
 
         // Gradual upwards look
-        camera.translate({sinf(frameId / 1000.f) * 0.01f, 0, frameId / 100000.f});
-        camera.lookAt({0, 0, 0});
 
         // Updating shader uniforms related to the camera
-        updateShader(shader, camera);
+        updateShader(shader, camera, iTime);
 
         // Clearing the window content
         window.clear();
@@ -59,7 +79,6 @@ int main()
 
         // Displaying the frame
         window.display();
-
         ++frameId;
     }
 }

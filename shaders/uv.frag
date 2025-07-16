@@ -1,5 +1,6 @@
 uniform vec2 iResolution;
 uniform vec3 camPosition;
+uniform float iTime;
 uniform mat3 camRotationMatrix;
 
 uniform float power;
@@ -44,6 +45,8 @@ void main()
     {
         position = rayOrigin + rayDirection * distance;
 
+//        position = mod(position, vec3(4.0)) - vec3(2.0);
+
         float currentDistance = distanceEstimator(position);
 
         distance += currentDistance;
@@ -61,6 +64,6 @@ void main()
     float rel = float(i) / iterations;
     vec3 luminance = vec3(rel, rel, rel);
 
-    vec3 color = rayDirection * 0.5 + 0.5;
+//    vec3 color = rayDirection * 0.5 + 0.5;
     gl_FragColor = vec4(luminance, 1.0);
 }
