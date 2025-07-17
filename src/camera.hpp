@@ -8,8 +8,7 @@ namespace raymarch
     class Camera
     {
     public:
-        Camera(const sf::Vector2f &resolution, const sf::Vector3f &position, const sf::Vector3f &lookAt, float fov,
-               float aspectRatio, float zoom);
+        Camera(const sf::Vector2f &resolution, const sf::Vector3f &position, const sf::Vector3f &lookAt, float fov, float zoom);
 
         void rotate(const sf::Vector3f &deltaEuler);
         void translate(const sf::Vector3f &delta);

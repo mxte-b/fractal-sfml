@@ -2,12 +2,12 @@
 
 #include "camera.hpp"
 
-raymarch::Camera::Camera(const sf::Vector2f &resolution, const sf::Vector3f &position, const sf::Vector3f &lookAt, const float fov, const float aspectRatio, const float zoom) :
+raymarch::Camera::Camera(const sf::Vector2f &resolution, const sf::Vector3f &position, const sf::Vector3f &lookAt, const float fov, const float zoom) :
     _resolution(resolution),
     _position(position),
     _quaternion(lookAtQuaternion(position, lookAt, {0, 1, 0})),
     _fov(fov),
-    _aspectRatio(aspectRatio),
+    _aspectRatio(resolution.x / resolution.y),
     _zoom(zoom)
 {
 }

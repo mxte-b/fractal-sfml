@@ -22,7 +22,6 @@ add_executable(${PROJECT_NAME}
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 target_link_libraries(${PROJECT_NAME} PRIVATE SFML::Graphics)
 
-
 # Collect shader files
 file(GLOB_RECURSE SHADER_FILES
         ${CMAKE_SOURCE_DIR}/shaders/*.frag
@@ -36,7 +35,7 @@ add_custom_target(copy_shaders ALL
         ${CMAKE_SOURCE_DIR}/shaders
         ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/shaders
         DEPENDS ${SHADER_FILES}
-        COMMENT "Copying updated shader files..."
+        COMMENT "Copying shader files..."
 )
 
 # Make sure it runs before build

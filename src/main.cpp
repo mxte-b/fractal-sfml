@@ -5,6 +5,7 @@
 #include "camera.hpp"
 #include "events.hpp"
 #include "config.hpp"
+#include "eventhandler.hpp"
 
 int main()
 {
@@ -18,9 +19,9 @@ int main()
     sf::RectangleShape fullScreenQuad {config::windowSizeF};
     fullScreenQuad.setFillColor(sf::Color::Red);
 
-    // UV shader
+    // Ray-marching shader
     sf::Shader shader;
-    if (!shader.loadFromFile("shaders/uv.frag", sf::Shader::Type::Fragment))
+    if (!shader.loadFromFile("shaders/main.frag", sf::Shader::Type::Fragment))
     {
         std::cerr << "Failed to load fragment shader" << std::endl;
         return 1;
@@ -36,8 +37,10 @@ int main()
     constexpr sf::Vector3f cameraPosition {0.01, 0, -4};
     constexpr sf::Vector3f cameraTarget {0, 0, 2};
     constexpr float fov = 60;
-    const float aspectRatio = config::windowSizeF.x / config::windowSizeF.y;
-    raymarch::Camera camera { config::windowSizeF, cameraPosition, cameraTarget, fov, aspectRatio, 1.0f };
+    raymarch::Camera camera { config::windowSizeF, cameraPosition, cameraTarget, fov, 1.0f };
+
+    // Event handler
+    raymarch::EventHandler eventHandler {window, fullScreenQuad, shader, camera};
 
     unsigned int frameId = 0;
     constexpr float sensitivity = 2.0f;
@@ -64,9 +67,8 @@ int main()
         camera.rotate({delta.x, delta.y, 0});
 
         // Processing window events
-        processEvents(window, fullScreenQuad, shader);
-
-        // Gradual upwards look
+        // processEvents(window, fullScreenQuad, shader);
+        eventHandler.handleEvents();
 
         // Updating shader uniforms related to the camera
         updateShader(shader, camera, iTime);

@@ -1,0 +1,48 @@
+#include "eventhandler.hpp"
+
+#include "config.hpp"
+
+
+raymarch::EventHandler::EventHandler(sf::RenderWindow &window, sf::RectangleShape &fullScreenQuad, sf::Shader &shader, Camera &camera):
+_window(window),
+_fullScreenQuad(fullScreenQuad),
+_shader(shader),
+_camera(camera)
+{}
+
+void raymarch::EventHandler::handleEvents() const
+{
+    // Handling generic window events
+    _window.handleEvents(
+        [&](const sf::Event::Closed&)
+        {
+            _window.close();
+        },
+        [&](const sf::Event::Resized&)
+        {
+            // Getting new size of window and updating config variables
+            config::windowSize = _window.getSize();
+            config::windowSizeF = static_cast<sf::Vector2f>(config::windowSize);
+            config::windowCenter = {static_cast<int>(config::windowSize.x / 2), static_cast<int>(config::windowSize.y / 2)};
+
+            // Updating FSQ size
+            _fullScreenQuad.setSize(config::windowSizeF);
+
+            // Updating viewport size
+            sf::View view = _window.getView();
+            view.setSize(config::windowSizeF);
+            view.setCenter(sf::Vector2f(config::windowSizeF.x / 2.f, config::windowSizeF.y / 2.f));
+            _window.setView(view);
+
+            // Updating shader uniform
+            _shader.setUniform("iResolution", config::windowSizeF);
+        },
+        [&](const sf::Event::KeyPressed& event)
+        {
+            if (event.code == sf::Keyboard::Key::Escape)
+            {
+                _window.close();
+            }
+        });
+}
+

@@ -1,9 +1,9 @@
 uniform vec2 iResolution;
 uniform vec3 camPosition;
-uniform float iTime;
 uniform mat3 camRotationMatrix;
 
 uniform float power;
+uniform float iTime;
 uniform float epsilon;
 uniform float maxDistance;
 uniform int iterations;
@@ -51,11 +51,13 @@ void main()
 
         distance += currentDistance;
 
+        // Inside SDF
         if (currentDistance < epsilon)
         {
             break;
         }
 
+        // Outside SDF
         if (distance > maxDistance)
         {
             break;
