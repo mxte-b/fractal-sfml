@@ -34,7 +34,7 @@ int main()
     shader.setUniform("iTime", 0.0f);
 
     // Camera
-    constexpr sf::Vector3f cameraPosition {0.01, 0, -4};
+    constexpr sf::Vector3f cameraPosition {0, 0, -4};
     constexpr sf::Vector3f cameraTarget {0, 0, 2};
     constexpr float fov = 60;
     raymarch::Camera camera { config::windowSizeF, cameraPosition, cameraTarget, fov, 1.0f };
@@ -56,15 +56,6 @@ int main()
         previousTime = elapsedTime;
         float deltaTime = (elapsedTime - previousTime).asSeconds();
         float iTime = elapsedTime.asSeconds();
-
-        // Getting mouse delta
-        sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
-        sf::Vector2f delta = static_cast<sf::Vector2f>(mousePosition - config::windowCenter).componentWiseDiv(config::windowSizeF) * sensitivity;
-
-        // Resetting mouse position
-        sf::Mouse::setPosition(config::windowCenter, window);
-
-        camera.rotate({delta.x, delta.y, 0});
 
         // Processing window events
         // processEvents(window, fullScreenQuad, shader);

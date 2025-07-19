@@ -14,6 +14,7 @@ raymarch::Camera::Camera(const sf::Vector2f &resolution, const sf::Vector3f &pos
 
 void raymarch::Camera::translate(const sf::Vector3f &delta)
 {
+    if (delta.lengthSquared() == 0) return;
     this->_position += delta;
 }
 
@@ -35,8 +36,9 @@ sf::Glsl::Mat3 raymarch::Camera::lookAtMatrix(const sf::Vector3f &eye, const sf:
 void raymarch::Camera::lookAt(const sf::Vector3f &target)
 {
     constexpr sf::Vector3f up {0, 1, 0};
-    const sf::Glsl::Mat3 lookAtMatrix = Camera::lookAtMatrix(this->_position, target, up);
-    this->_quaternion = Quaternion::fromRotationMatrix(lookAtMatrix).normalize();
+    const sf::Glsl::Mat3 lookAtMatrix = Camera::lookAtMatrix(_position, target, up);
+    _quaternion = Quaternion::fromRotationMatrix(lookAtMatrix).normalize();
+    updateDirectionVectors();
 }
 
 raymarch::Quaternion raymarch::Camera::lookAtQuaternion(const sf::Vector3f &eye, const sf::Vector3f &target, const sf::Vector3f &up)
@@ -48,18 +50,20 @@ raymarch::Quaternion raymarch::Camera::lookAtQuaternion(const sf::Vector3f &eye,
 void raymarch::Camera::updateDirectionVectors()
 {
     // Rotate global direction vectors to obtain local directions
-    _up = _quaternion.rotate(UP);
-    _right = _quaternion.rotate(RIGHT);
-    _forward = _quaternion.rotate(FORWARD);
+    up = _quaternion.rotate(UP);
+    right = _quaternion.rotate(RIGHT);
+    forward = _quaternion.rotate(FORWARD);
 }
 
 
 void raymarch::Camera::rotate(const sf::Vector3f& deltaEuler)
 {
+    if (deltaEuler.lengthSquared() == 0) return;
+
     // Creating 3 Quaternions for each axis of rotation
-    const Quaternion yawQuat = Quaternion::fromAxisAngle(UP, deltaEuler.x);
-    const Quaternion pitchQuat = Quaternion::fromAxisAngle(_right, deltaEuler.y);
-    const Quaternion rollQuat = Quaternion::fromAxisAngle(_forward, deltaEuler.z);
+    const Quaternion yawQuat = Quaternion::fromAxisAngle(up, deltaEuler.x);
+    const Quaternion pitchQuat = Quaternion::fromAxisAngle(right, deltaEuler.y);
+    const Quaternion rollQuat = Quaternion::fromAxisAngle(forward, deltaEuler.z);
 
     // Rotating the camera
     _quaternion = (yawQuat * pitchQuat * rollQuat * _quaternion).normalize();
