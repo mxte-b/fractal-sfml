@@ -1,6 +1,7 @@
 #include "eventhandler.hpp"
 
 #include "config.hpp"
+#include "inputhandler.hpp"
 
 
 raymarch::EventHandler::EventHandler(sf::RenderWindow &window, sf::RectangleShape &fullScreenQuad, sf::Shader &shader, Camera &camera):
@@ -10,15 +11,11 @@ _shader(shader),
 _camera(camera)
 {}
 
-void raymarch::EventHandler::handleEvents() const
+void raymarch::EventHandler::handleEvents(const float deltaTime) const
 {
     // Handling camera rotation
-    sf::Vector2f mouseDelta2D = static_cast<sf::Vector2f>(sf::Mouse::getPosition(_window) - config::windowCenter).componentWiseDiv(config::windowSizeF) * 2.0f;
-    sf::Vector3f rotationDelta = sf::Vector3f(mouseDelta2D.x, mouseDelta2D.y, 0);
-    sf::Vector3f translateDelta;
-
-    // Resetting mouse position
-    sf::Mouse::setPosition(config::windowCenter, _window);
+    sf::Vector3f movementVector = InputHandler::getNormalizedMovement();
+    sf::Vector3f rotationVector = InputHandler::getNormalizedRotation(_window);
 
     // Handling generic window events
     _window.handleEvents(
@@ -47,44 +44,20 @@ void raymarch::EventHandler::handleEvents() const
         },
         [&](const sf::Event::KeyPressed& event)
         {
-            sf::Vector3f movementVector {0, 0, 0};
-
             switch (event.code)
             {
                 case sf::Keyboard::Key::Escape:
                     _window.close();
                     break;
-                case sf::Keyboard::Key::W:
-                    movementVector.z = 1.f;
-                    break;
-                case sf::Keyboard::Key::A:
-                    movementVector.x = -1.f;
-                    break;
-                case sf::Keyboard::Key::S:
-                    movementVector.z = -1.f;
-                    break;
-                case sf::Keyboard::Key::D:
-                    movementVector.x = 1.f;
-                    break;
-                case sf::Keyboard::Key::Q:
-                    rotationDelta.z = -0.1f;
-                    break;
-                case sf::Keyboard::Key::E:
-                    rotationDelta.z = 0.1f;
+                case sf::Keyboard::Key::H:
+                    // TODO - Return Home
                     break;
                 default:
                     break;
             }
-
-            // Handle camera movement (smoothed)
-            translateDelta =
-                _camera.right * movementVector.x +
-                _camera.up * movementVector.y +
-                _camera.forward * movementVector.z;
-
         });
 
-    _camera.translate(translateDelta);
-    _camera.rotate(rotationDelta);
+    _camera.move(movementVector, deltaTime);
+    _camera.rotate(rotationVector);
 }
 

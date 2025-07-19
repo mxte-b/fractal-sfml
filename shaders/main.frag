@@ -1,6 +1,7 @@
 uniform vec2 iResolution;
 uniform vec3 camPosition;
 uniform mat3 camRotationMatrix;
+uniform float fov;
 
 uniform float power;
 uniform float iTime;
@@ -36,7 +37,7 @@ void main()
     uv.x *= iResolution.x / iResolution.y;
 
     vec3 rayOrigin = camPosition;
-    vec3 rayDirection = normalize(camRotationMatrix * vec3(uv.xy, 1));
+    vec3 rayDirection = normalize(camRotationMatrix * vec3(uv.xy * tan(fov / 2), 1));
 
     int i = 0;
     vec3 position = vec3(0, 0, 0);

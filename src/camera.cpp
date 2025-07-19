@@ -2,6 +2,15 @@
 
 #include "camera.hpp"
 
+#include <iostream>
+
+constexpr float PI = 3.1415927f;
+
+sf::Vector3f lerp(const sf::Vector3f& v1, const sf::Vector3f& v2, const float t)
+{
+    return v1 + (v2 - v1) * t;
+}
+
 raymarch::Camera::Camera(const sf::Vector2f &resolution, const sf::Vector3f &position, const sf::Vector3f &lookAt, const float fov, const float zoom) :
     _resolution(resolution),
     _position(position),
@@ -17,6 +26,18 @@ void raymarch::Camera::translate(const sf::Vector3f &delta)
     if (delta.lengthSquared() == 0) return;
     this->_position += delta;
 }
+
+void raymarch::Camera::move(const sf::Vector3f &movementVector, const float deltaTime)
+{
+    // Apply smoothing
+    sf::Vector3f globalMovement = right * movementVector.x + up * movementVector.y + forward * movementVector.z;
+    globalMovement *= _movementSpeed;
+
+    _movementDelta = lerp(_movementDelta, globalMovement, _acceleration);
+
+    _position += _movementDelta * deltaTime;
+}
+
 
 sf::Glsl::Mat3 raymarch::Camera::lookAtMatrix(const sf::Vector3f &eye, const sf::Vector3f &target, const sf::Vector3f &up)
 {
@@ -80,5 +101,10 @@ sf::Glsl::Vec3 raymarch::Camera::getPosition() const
 sf::Glsl::Mat3 raymarch::Camera::getRotationMatrix() const
 {
     return this->_quaternion.toMatrix();
+}
+
+float raymarch::Camera::getFOV() const
+{
+    return _fov * PI / 180.0f;
 }
 

@@ -36,14 +36,15 @@ int main()
     // Camera
     constexpr sf::Vector3f cameraPosition {0, 0, -4};
     constexpr sf::Vector3f cameraTarget {0, 0, 2};
-    constexpr float fov = 60;
+    constexpr float fov = 90;
     raymarch::Camera camera { config::windowSizeF, cameraPosition, cameraTarget, fov, 1.0f };
+    shader.setUniform("fov", camera.getFOV());
+
 
     // Event handler
     raymarch::EventHandler eventHandler {window, fullScreenQuad, shader, camera};
 
     unsigned int frameId = 0;
-    constexpr float sensitivity = 2.0f;
 
     sf::Clock clock;
     sf::Time previousTime = sf::Time::Zero;
@@ -53,13 +54,13 @@ int main()
     {
         // Updating the time
         sf::Time elapsedTime = clock.getElapsedTime();
-        previousTime = elapsedTime;
         float deltaTime = (elapsedTime - previousTime).asSeconds();
         float iTime = elapsedTime.asSeconds();
+        previousTime = elapsedTime;
 
         // Processing window events
         // processEvents(window, fullScreenQuad, shader);
-        eventHandler.handleEvents();
+        eventHandler.handleEvents(deltaTime);
 
         // Updating shader uniforms related to the camera
         updateShader(shader, camera, iTime);

@@ -16,6 +16,7 @@ add_executable(${PROJECT_NAME}
         src/main.cpp
         src/events.cpp
         src/eventhandler.cpp
+        src/inputhandler.cpp
         src/camera.cpp
         src/quaternion.cpp
 )

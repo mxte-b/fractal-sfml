@@ -16,26 +16,27 @@ namespace raymarch
         sf::Vector3f right = RIGHT;
 
         void rotate(const sf::Vector3f &deltaEuler);
-        void move(const sf::Vector3f &movementDirection);
+        void move(const sf::Vector3f &movementVector, float deltaTime);
         void translate(const sf::Vector3f &delta);
         void lookAt(const sf::Vector3f &target);
         void updateDirectionVectors();
 
         [[nodiscard]] sf::Glsl::Mat3 getRotationMatrix() const;
         [[nodiscard]] sf::Glsl::Vec3 getPosition() const;
+        [[nodiscard]] float getFOV() const;
         [[nodiscard]] static sf::Glsl::Mat3 lookAtMatrix(const sf::Vector3f& eye, const sf::Vector3f& target, const sf::Vector3f& up);
     private:
         sf::Vector2f _resolution;
         sf::Vector3f _position;
-        sf::Vector3f _movementDelta;
-        sf::Vector3f _rotationDelta;
+        sf::Vector3f _movementDelta = sf::Vector3f(0, 0, 0);
+        sf::Vector3f _rotationDelta = sf::Vector3f(0, 0, 0);
         Quaternion _quaternion;
         float _fov;
         float _aspectRatio;
         float _zoom;
-        float _movementSpeed;
-        float _rotationSpeed;
-        float _acceleration;
+        float _movementSpeed = 1;
+        float _rotationSpeed = 1;
+        float _acceleration = 0.03;
 
         // Global direction vectors
         static constexpr auto UP = sf::Vector3f(0, 1, 0);
