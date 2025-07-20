@@ -16,6 +16,7 @@ void raymarch::EventHandler::handleEvents(const float deltaTime) const
     // Handling camera rotation
     sf::Vector3f movementVector = InputHandler::getNormalizedMovement();
     sf::Vector3f rotationVector = InputHandler::getNormalizedRotation(_window);
+    float zoomDelta = 0;
 
     // Handling generic window events
     _window.handleEvents(
@@ -55,8 +56,16 @@ void raymarch::EventHandler::handleEvents(const float deltaTime) const
                 default:
                     break;
             }
+        },
+        [&](const sf::Event::MouseWheelScrolled& event)
+        {
+            if (event.wheel == sf::Mouse::Wheel::Vertical)
+            {
+                zoomDelta = event.delta;
+            }
         });
 
+    _camera.zoom(zoomDelta);
     _camera.move(movementVector, deltaTime);
     _camera.rotate(rotationVector);
 }

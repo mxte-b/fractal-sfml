@@ -11,6 +11,11 @@ sf::Vector3f lerp(const sf::Vector3f& v1, const sf::Vector3f& v2, const float t)
     return v1 + (v2 - v1) * t;
 }
 
+float lerp(const float a, const float b, const float t)
+{
+    return a + (b - a) * t;
+}
+
 raymarch::Camera::Camera(const sf::Vector2f &resolution, const sf::Vector3f &position, const sf::Vector3f &lookAt, const float fov, const float zoom) :
     _resolution(resolution),
     _position(position),
@@ -79,12 +84,13 @@ void raymarch::Camera::updateDirectionVectors()
 
 void raymarch::Camera::rotate(const sf::Vector3f& deltaEuler)
 {
-    if (deltaEuler.lengthSquared() == 0) return;
+    // if (deltaEuler.lengthSquared() == 0) return;
+    _rotationDelta = lerp(_rotationDelta, deltaEuler * _rotationSpeed, _rotationAcceleration);
 
     // Creating 3 Quaternions for each axis of rotation
-    const Quaternion yawQuat = Quaternion::fromAxisAngle(up, deltaEuler.x);
-    const Quaternion pitchQuat = Quaternion::fromAxisAngle(right, deltaEuler.y);
-    const Quaternion rollQuat = Quaternion::fromAxisAngle(forward, deltaEuler.z);
+    const Quaternion yawQuat = Quaternion::fromAxisAngle(up, _rotationDelta.x);
+    const Quaternion pitchQuat = Quaternion::fromAxisAngle(right, _rotationDelta.y);
+    const Quaternion rollQuat = Quaternion::fromAxisAngle(forward, _rotationDelta.z);
 
     // Rotating the camera
     _quaternion = (yawQuat * pitchQuat * rollQuat * _quaternion).normalize();
@@ -105,6 +111,17 @@ sf::Glsl::Mat3 raymarch::Camera::getRotationMatrix() const
 
 float raymarch::Camera::getFOV() const
 {
-    return _fov * PI / 180.0f;
+    return _fov * PI / (180.0f * _zoom);
+}
+
+bool raymarch::Camera::isMoving() const
+{
+    return _movementDelta.lengthSquared() > 1e-4 || _rotationDelta.lengthSquared() > 1e-8 || abs(_zoomDelta) > 1e-4;
+}
+
+void raymarch::Camera::zoom(float delta)
+{
+    _zoomDelta = lerp(_zoomDelta, delta * _zoomSpeed, _zoomAcceleration);
+    _zoom = std::max(1.f, _zoom + _zoomDelta);
 }
 

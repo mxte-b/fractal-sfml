@@ -52,5 +52,6 @@ void updateShader(sf::Shader &shader, const raymarch::Camera &camera, const floa
     // auto look2 = raymarch::Quaternion::fromRotationMatrix(look).toMatrix();
     shader.setUniform("camPosition", camera.getPosition());
     shader.setUniform("camRotationMatrix", camera.getRotationMatrix());
+    shader.setUniform("fov", camera.getFOV());
     shader.setUniform("iTime", iTime);
 }
