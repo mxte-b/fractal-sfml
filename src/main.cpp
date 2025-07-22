@@ -4,7 +4,7 @@
 #include <SFML/Graphics.hpp>
 
 #include "camera.hpp"
-#include "events.hpp"
+#include "helpers.hpp"
 #include "config.hpp"
 #include "eventhandler.hpp"
 
@@ -44,13 +44,13 @@ int main()
         return 1;
     }
     shader.setUniform("iResolution", config::windowSizeF);
-    shader.setUniform("maxDistance", 100.0f);
-    shader.setUniform("epsilon", 0.001f);
-    shader.setUniform("iterations", 200);
+    shader.setUniform("maxDistance", 10000.0f);
+    shader.setUniform("epsilon", 0.00001f);
+    shader.setUniform("iterations", 1000);
     shader.setUniform("power", 8.0f);
     shader.setUniform("iTime", 0.0f);
     shader.setUniform("lastFrame", accumulation[pingpong].getTexture());
-    shader.setUniform("blendFactor", 0.9f);
+    shader.setUniform("blendFactor", 0.95f);
     shader.setUniform("accumulate", true);
 
     // Camera

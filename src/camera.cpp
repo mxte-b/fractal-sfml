@@ -114,14 +114,40 @@ float raymarch::Camera::getFOV() const
     return _fov * PI / (180.0f * _zoom);
 }
 
-bool raymarch::Camera::isMoving() const
+float raymarch::Camera::getAperture() const
 {
-    return _movementDelta.lengthSquared() > 1e-4 || _rotationDelta.lengthSquared() > 1e-8 || abs(_zoomDelta) > 1e-4;
+    return _aperture;
 }
 
-void raymarch::Camera::zoom(float delta)
+float raymarch::Camera::getFocusDistance() const
+{
+    return _focusDistance;
+}
+
+
+bool raymarch::Camera::isMoving() const
+{
+    return (
+        _movementDelta.lengthSquared() > 1e-4 ||
+        _rotationDelta.lengthSquared() > 1e-8 ||
+        abs(_zoomDelta) > 1e-4
+        );
+}
+
+void raymarch::Camera::zoom(const float delta)
 {
     _zoomDelta = lerp(_zoomDelta, delta * _zoomSpeed, _zoomAcceleration);
     _zoom = std::max(1.f, _zoom + _zoomDelta);
 }
 
+void raymarch::Camera::adjustAperture(const float delta)
+{
+    _aperture += delta;
+    _aperture = std::max(0.f, _aperture);
+}
+
+void raymarch::Camera::adjustFocus(const float delta)
+{
+    _focusDistance += delta;
+    _focusDistance = std::max(0.1f, _focusDistance);
+}

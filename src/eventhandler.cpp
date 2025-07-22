@@ -1,6 +1,9 @@
 #include "eventhandler.hpp"
 
+#include <iostream>
+
 #include "config.hpp"
+#include "helpers.hpp"
 #include "inputhandler.hpp"
 
 
@@ -50,8 +53,34 @@ void raymarch::EventHandler::handleEvents(const float deltaTime) const
                 case sf::Keyboard::Key::Escape:
                     _window.close();
                     break;
+                case sf::Keyboard::Key::F12:
+                {
+                    // Copying window content to a texture
+                    sf::Texture texture {config::windowSize};
+                    texture.update(_window);
+
+                    const sf::Image screenshot = texture.copyToImage();
+
+                    if (const std::string filename = "screenshot_" + getDateTimeString() + ".png"; screenshot.saveToFile(filename))
+                        std::cout << "Screenshot saved to " << filename << std::endl;
+                    else
+                        std::cerr << "Failed to save screenshot." << std::endl;
+                    break;
+                }
                 case sf::Keyboard::Key::H:
                     // TODO - Return Home
+                    break;
+                case sf::Keyboard::Key::Down:
+                    _camera.adjustFocus(-0.1);
+                    break;
+                case sf::Keyboard::Key::Up:
+                    _camera.adjustFocus(0.1);
+                    break;
+                case sf::Keyboard::Key::Left:
+                    _camera.adjustAperture(-0.01);
+                    break;
+                case sf::Keyboard::Key::Right:
+                    _camera.adjustAperture(0.01);
                     break;
                 default:
                     break;

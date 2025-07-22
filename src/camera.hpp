@@ -19,6 +19,8 @@ namespace raymarch
         void move(const sf::Vector3f &movementVector, float deltaTime);
         void translate(const sf::Vector3f &delta);
         void zoom(float delta);
+        void adjustAperture(float delta);
+        void adjustFocus(float delta);
         void lookAt(const sf::Vector3f &target);
         void updateDirectionVectors();
         [[nodiscard]] bool isMoving() const;
@@ -26,7 +28,8 @@ namespace raymarch
         [[nodiscard]] sf::Glsl::Mat3 getRotationMatrix() const;
         [[nodiscard]] sf::Glsl::Vec3 getPosition() const;
         [[nodiscard]] float getFOV() const;
-        [[nodiscard]] float getZoom() const;
+        [[nodiscard]] float getAperture() const;
+        [[nodiscard]] float getFocusDistance() const;
         [[nodiscard]] static sf::Glsl::Mat3 lookAtMatrix(const sf::Vector3f& eye, const sf::Vector3f& target, const sf::Vector3f& up);
     private:
         sf::Vector2f _resolution;
@@ -35,6 +38,8 @@ namespace raymarch
         sf::Vector3f _rotationDelta = sf::Vector3f(0, 0, 0);
         Quaternion _quaternion;
         float _fov;
+        float _aperture = 0.01f;
+        float _focusDistance = 1.0f;
         float _aspectRatio;
         float _zoom;
         float _zoomDelta;
